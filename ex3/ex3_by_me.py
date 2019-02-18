@@ -33,11 +33,11 @@ print("X shape: %s. Number of images are: %s" %(X.shape, X.shape[0]))
 index = np.random.randint(5000, size=10)
 
 
-for i in index:
-    image = X[i, 1:]
-    image = np.reshape(image, [20, 20])
-    plt.imshow(image.T, cmap="gray")
-    plt.show()
+# for i in index:
+#     image = X[i, 1:]
+#     image = np.reshape(image, [20, 20])
+#     plt.imshow(image.T, cmap="gray")
+#     plt.show()
 
 
 def getDatumImg(row):
@@ -45,4 +45,38 @@ def getDatumImg(row):
     square = row[1:].reshape(width, height)
     return square.T
 
+def displayData(indices_to_display = None):
+    width, height = 20, 20
+    nrows, ncols = 10, 10
+    if not indices_to_display:
+        indices_to_display = random.sample(range(X.shape[0]), nrows*ncols)
+
+    big_picture = np.zeros((height*nrows, width*ncols))
+
+    irow, icol = 0, 0
+    for idx in indices_to_display:
+        if icol == irow:
+            irow += 1
+            icol = 0
+        img = getDatumImg(X[idx])
+        big_picture[irow*height:irow*height+img.shape[0], icol*width:icol*width+img.shape[1]]
+        icol +=1
+    fig = plt.figure(figsize=(6,6))
+    imgg = scipy.misc.toimage(big_picture)
+    plt.imshow(imgg, cmap=cm.Greys_r)
+    plt.show()
+
+displayData()
+
+def h(mytheta, myX):
+    return expit(np.dot(myX, mytheta))
+
+def compute_cost(mytheta, myX, myy, mylambda = 0.):
+    m = myX.shape[0]
+    myh = h(mytheta, myX)
+    term1 = np.log(myh).dot(-myy.T)
+    term2 = np.log(1.0-myh).dot(1-myy.T)
+    left_hand = (term1-term2)/m
+    right_hand = mytheta.T.dot(mytheta) * mylambda / (2*m)
+    return left_hand + right_hand
 
