@@ -2,6 +2,9 @@ import os
 import scipy.io
 import scipy.special
 import numpy as np
+import matplotlib.pyplot as plt
+import random
+
 
 CWD = os.getcwd()
 folder_weights = "data\ex3weights.mat"
@@ -37,5 +40,31 @@ def predictNN(row, Thetas):
     classes = list(range(1, 10)) + [10]
     output = propagateForward(row, Thetas)
     return classes[np.argmax(np.array(output))]
+
+myThetas = [Theta1, Theta2]
+n_correct, n_total = 0.0, 0.0
+incorect_indices = []
+
+for irow in range(X.shape[0]):
+    n_total += 1
+    if predictNN(X[irow], myThetas) == y[irow]:
+        n_correct +=1
+    else:
+        incorect_indices.append(irow)
+
+print("Training set accuracy: %s" %(100*(n_correct/n_total)))
+
+
+
+for i in range(5):
+    image_index = random.choice(incorect_indices)
+    image_matrix = X[image_index, 1:].reshape([20, 20]).T
+    plt.imshow(image_matrix, cmap="gray")
+    predicted_val = predictNN(X[image_index], myThetas)
+    predicted_val = 0 if predicted_val == 10 else predicted_val
+    plt.title("Predicted: %d" % predicted_val)
+    plt.show()
+
+
 
 
