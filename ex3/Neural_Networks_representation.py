@@ -4,7 +4,7 @@ import scipy.special
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-
+import itertools
 
 CWD = os.getcwd()
 folder_weights = "data\ex3weights.mat"
@@ -66,5 +66,18 @@ for i in range(5):
     plt.show()
 
 
+input_layer_size = 400
+hidden_layer_size = 25
+output_layer_size = 10
 
+n_training_samples = X.shape[0]
 
+def flattenParams(thetas_list):
+    flattened_list = [mytheta.flatten() for mytheta in thetas_list]
+    combined = list(itertools.chain.from_iterable(flattened_list))
+    assert len(combined) == (input_layer_size+1)*hidden_layer_size + (hidden_layer_size +1) * output_layer_size
+    return np.array(combined).reshape((len(combined),1))
+
+a = Theta1.flatten()
+b = list(itertools.chain.from_iterable(a))
+print(b)
