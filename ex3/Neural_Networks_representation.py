@@ -152,3 +152,50 @@ print(computeCost(flattenParams(myThetas), flattenX(X), y))
 def sigmoidGradient(z):
     activation = exponential(z)
     return activation*(1-activation)
+
+def genRandThetas():
+    epsilon_init = 0.12
+    theta1_shape = (hidden_layer_size, input_layer_size+1)
+    theta2_shape = (output_layer_size, hidden_layer_size+1)
+    rand_thetas = [np.random.rand(*theta1_shape)*(2*epsilon_init)-epsilon_init,
+                   np.random.rand(*theta2_shape)*(2*epsilon_init)-epsilon_init]
+    return rand_thetas
+
+def backPropagate(mythetas_flattened, myX_flattened, myy, mylambda=0.0):
+    mythetas = reshapeParams(mythetas_flattened)
+    myX = reshapeX(myX_flattened)
+    theta1_shape = (hidden_layer_size, input_layer_size + 1)
+    theta2_shape = (output_layer_size, hidden_layer_size + 1)
+    Delta1 = np.zeros(theta1_shape)
+    Delta2 = np.zeros(theta2_shape)
+    m = n_training_samples
+    for irow in range(m):
+        myrow = myX[irow]
+        a1 = myrow.reshape((input_layer_size+1,1))
+        temp = propagateForward(myrow, mythetas)
+        z2 = temp[0][0]
+        a2 = temp[0][1]
+        z3 = temp[1][0]
+        a3 = temp[1][1]
+        tmpy = np.zeros((10, 1))
+        tmpy[myy[irow]-1] = 1
+        delta3 = a3 - tmpy
+        delta2 = mythetas[1].T[1:,:].dot(delta3)*sigmoidGradient(z2)
+        a2 = np.insert(a2, 0, 1, axis=0)
+        Delta1 += delta2.dot(a1.T)
+        Delta2 += delta3.dot(a2.T)
+    D1 = Delta1 / float(m)
+    D2 = Delta2 / float(m)
+
+    D1[:, 1:] += (float(mylambda)/m)*mythetas[0][:,1:]
+    D2[:, 1:] += (float(mylambda)/m)*mythetas[1][:,1:]
+    return flattenParams([D1, D2]).flatten()
+
+
+flattenedD1D2 = backPropagate(flattenParams(myThetas), flattenX(X), y, mylambda = 0.0)
+D1, D2 = reshapeParams(flattenedD1D2)
+
+
+
+
+
