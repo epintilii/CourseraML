@@ -233,6 +233,32 @@ def trainNN(mylambda = 0.0):
 
 learned_thetas = trainNN()
 
+def predictNN(row, Thetas):
+    classes = list(range(1,11))
+    output = propagateForward(row, Thetas)
+    return classes[np.argmax(output[-1][1])]
+
+def computeAccuracy(myX, myThetas, myy):
+    n_correct, n_total = 0, myX.shape[0]
+    for irow in range(n_total):
+        if int(predictNN(myX[irow], myThetas)) == int(myy[irow]):
+            n_correct +=1
+    print("Training set accuracy %s" %(100*(float(n_correct)/n_total)))
+
+computeAccuracy(X, learned_thetas, y)
+
+#learned_regularized_Thetas = trainNN(mylambda=10.)
+
+#computeAccuracy(X, learned_regularized_Thetas, y)
+
+####Visualizing the hidden layer
+
+hidden_layer_weights = learned_thetas[0]
+
+for i in hidden_layer_weights[:,1:]:
+    img = i.reshape((20, 20))
+    plt.imshow(img, cmap="gray")
+    plt.show()
 
 
 
