@@ -259,6 +259,6 @@ for i in hidden_layer_weights[:,1:]:
     img = i.reshape((20, 20))
     plt.imshow(img, cmap="gray")
     plt.show()
-
+ 
 
 
