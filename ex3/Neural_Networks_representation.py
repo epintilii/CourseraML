@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 import math
+import scipy.optimize
 
 CWD = os.getcwd()
 folder_weights = "data\ex3weights.mat"
@@ -195,6 +196,42 @@ def backPropagate(mythetas_flattened, myX_flattened, myy, mylambda=0.0):
 flattenedD1D2 = backPropagate(flattenParams(myThetas), flattenX(X), y, mylambda = 0.0)
 D1, D2 = reshapeParams(flattenedD1D2)
 
+
+def checkGradient(mythetas, myDs, myX, myy, mylambda = 0.0):
+    myeps = 0.0001
+    flattened = flattenParams(mythetas)
+    flattenedDs = flattenParams(myDs)
+    myX_flattened = flattenX(myX)
+    n_elems = len(flattened)
+    for i in range(10):
+        x = int(np.random.rand()*n_elems)
+        epsvec = np.zeros((n_elems, 1))
+        epsvec[x] = myeps
+        cost_high = computeCost(flattened + epsvec, myX_flattened, myy, mylambda)
+        cost_low = computeCost(flattened - epsvec, myX_flattened, myy, mylambda)
+        mygrad = (cost_high - cost_low)/float(2*myeps)
+        print("Element: %d. Numercal Gradient = %f. Backprop Gradient = %f." %(x, mygrad, flattenedDs[x]))
+
+
+def trainNN(myX, myy, n_epochs, learning_rate, mylambda=0.0):
+    randomThetas_unrolled = flattenParams(genRandThetas())
+    for epoch in range(n_epochs):
+        cost = computeCost(randomThetas_unrolled, flattenX(myX), myy, mylambda)
+        print("Epoch: %s. Training cost: %f" %(epoch, cost))
+        Ds = backPropagate(randomThetas_unrolled, flattenX(myX), myy, mylambda)
+        randomThetas_unrolled = randomThetas_unrolled - learning_rate * Ds
+    return reshapeParams(randomThetas_unrolled)
+
+
+#learned_thetas = trainNN(X, y, 50, 0.001, 0.0)
+
+def trainNN(mylambda = 0.0):
+    randomThetas_unrolled = flattenParams(genRandThetas())
+    results = scipy.optimize.fmin_cg(computeCost, x0=randomThetas_unrolled,
+                                     fprime= backPropagate, args=(flattenX(X), y, mylambda), maxiter=50, disp=True, full_output=True )
+    return reshapeParams(results[0])
+
+learned_thetas = trainNN()
 
 
 
